@@ -154,17 +154,27 @@ static void hid_set_config_callback(usbd_device *usbd_dev, uint16_t wValue)
 
 /* The USB_autodetect()-function is used to re-enumerate the USB device on the PC,
 so that after flashing, the device does not need to be physically reconnected. Additionally, 
-UBS D+ line (D23 = GPIOA, GPIO12) needs to be connected via a 1k5 Ohm pullup resistor to 
+USB D+ line (D23 = GPIOA, GPIO12) needs to be connected via a 1k5 Ohm pullup resistor to 
 VCC (3.0 - 3.6V) to be compliant with the USB 2.0 full-speed electrical specification. */
 static void USB_autodetect(void)
 {
     rcc_periph_clock_enable(RCC_GPIOA);
 
-    /* set GPIOA, GPIO12 (USB D+ line) to output push-pull low (0V) and wait for 250ms: */
+#if (USB_DP_1K5_PULLUP_SWITCHABLE_VIA_GPIOB9 == 1U)
+    /* on the Maple Mini development board GPIOB 9 is used switch a transistor to dis-/connect an on-board
+    1k5 Ohm pullup resistor to USB D+ line */
+	rcc_periph_clock_enable(RCC_GPIOB);
+	gpio_set_mode(GPIOB, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO9);
+	gpio_clear(GPIOB, GPIO9);
+	delay_ms(250);
+#else
+    /* in case the 1k5 Ohm pullup resistor is permanently connected to USB D+ line:
+    set GPIOA, GPIO12 (USB D+ line) to output push-pull low (0V) and wait for 250ms */
     gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO12);
     gpio_clear(GPIOA, GPIO12);
     delay_ms(250);
-
+#endif
+    
     /* set to alternate function (USB): */
     gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO12); /* USB D+ line */
     gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO11); /* USB D- line */

@@ -16,6 +16,9 @@
 #define USB_ISR                 usb_lp_can_rx0_isr
 #define IRQ_PRI_USB             (255U)
 
+/* 1 = resistor can be dis-/connected via a transistor and GPIOB9 signal; 0 = resistor is permanently connected: */
+#define USB_DP_1K5_PULLUP_SWITCHABLE_VIA_GPIOB9 (1U)
+
 void usb_hid_init(void);
 void usb_hid_move_mouse_xy(uint8_t x, uint8_t y);
 
