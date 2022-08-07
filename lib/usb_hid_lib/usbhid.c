@@ -190,10 +190,19 @@ void usb_hid_init(void)
 	nvic_enable_irq(USB_IRQ);
 }
 
-void usb_hid_move_mouse_xy(uint8_t x, uint8_t y)
+void usb_hid_move_mouse_xy(int8_t x, int8_t y)
 {
-	uint8_t buf[3] = {0, x, y};
-	usbd_ep_write_packet(usb_device, 0x81, buf, 3);
+	struct mouse_report_data_t {
+		uint8_t buttons;
+		int8_t move_x;
+		int8_t move_y;
+	} __attribute__((packed)) mouse_report_data = {
+		.buttons = 0, // 0=no, 1=left, 2=right, 4=middle
+		.move_x = x,
+		.move_y = y,
+	};
+
+	usbd_ep_write_packet(usb_device, 0x81, &mouse_report_data, sizeof(mouse_report_data));
 }
 
 void USB_ISR(void)

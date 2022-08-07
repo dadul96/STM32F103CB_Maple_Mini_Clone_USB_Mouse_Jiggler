@@ -20,6 +20,6 @@
 #define USB_DP_1K5_PULLUP_SWITCHABLE_VIA_GPIOB9 (1U)
 
 void usb_hid_init(void);
-void usb_hid_move_mouse_xy(uint8_t x, uint8_t y);
+void usb_hid_move_mouse_xy(int8_t x, int8_t y);
 
 #endif /* __USBHID_H__ */
