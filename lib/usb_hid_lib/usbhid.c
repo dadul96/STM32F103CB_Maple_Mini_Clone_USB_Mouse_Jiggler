@@ -126,10 +126,12 @@ static enum usbd_request_return_codes hid_control_request_callback(usbd_device *
 	(void)buf;
 	(void)usbd_dev;
 
-	if((req->bmRequestType != 0x81) ||
-	   (req->bRequest != USB_REQ_GET_DESCRIPTOR) ||
-	   (req->wValue != 0x2200))
+	if((req->bmRequestType != 0x81) ||				// D7: 1=Device-to-host; D6-D5: 0=Standard; D4-D0: 1=Interface
+	   (req->bRequest != USB_REQ_GET_DESCRIPTOR) ||	// GET_DESCRIPTOR = 6
+	   (req->wValue != 0x2200))						// Descriptor Type (0x22 = HID report) and Descriptor Index (0x00)
+	{
 		return USBD_REQ_NOTSUPP;
+	}	
 
 	/* Handle the HID report descriptor. */
 	*buf = (uint8_t *)hid_report_descriptor;
